@@ -1,15 +1,17 @@
 import argparse, fnmatch, os, webbrowser, markdown
 
 parser = argparse.ArgumentParser(description='Actions for notes')
+parser.add_argument('string', type=str, nargs="+", action='store', help='a string to search for')
 parser.add_argument('-u', action='store_true', help='Update the file db')
-parser.add_argument('-t', action='store', help='Search through the tag, or the description (faster)')
+parser.add_argument('-t', action='store_true', help='Search through the tag, or the description (faster)')
 args = parser.parse_args()
 
 def handleSelection(options):
     for x in range(0, len(options)):
-        print("%d) %s" % (x, options[0]))
-    choice = input("Select the number you want to view, or q to quit: ")
-    if choice != "q":
+        options = options[x].split(',')
+        print("%d) %s: %s" % (x, options[1], options[2]))
+    choice = raw_input("Select the number you want to view, or q to quit: ")
+    if choice != 'q':
         choice = int(choice)
         with open(options[choice], "r") as f:
             with open("temp.html", "w") as o:
@@ -23,11 +25,12 @@ def handleSelection(options):
                 webbrowser.open_new(os.path.abspath("temp.html"))
 
 if args.t:
+    print(args)
     options = []
     with open("files.conf", "r") as f:
         for line in f:
-            if args.t in line:
-                options.append(line.split(",")[0])
+            if all (x in line for x in args.string):
+                options.append(line)
     handleSelection(options)
 
 if args.u:
